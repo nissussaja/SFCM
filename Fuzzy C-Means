@@ -1,0 +1,86 @@
+U=matrix(ncol=c,nrow=nrow(matdt)) 
+   for(i in 1:nrow(matdt)){
+       for(j in 1:c){
+            U[i,j]=runif(1)
+       }
+    }
+    
+    
+#Normalisasi matriks partisi
+totU=matrix(rowSums(U),ncol=1,nrow=nrow(U))
+   for(a in 1:nrow(U)){
+       for(b in 1:ncol(U)){
+             U[a,b]=U[a,b]/totU[a,]
+        }
+     }
+P=0
+iter=1
+repeat{
+
+
+#Menghitung pusat cluster
+V=matrix(ncol=ncol(matdt),nrow=c)
+d=matrix(ncol=ncol(matdt),nrow=nrow(matdt))
+Uk=matrix(ncol=ncol(U),nrow=nrow(U))
+   for(g in 1:nrow(U)){
+       for(h in 1:ncol(U)){
+            Uk[g,h]=(U[g,h])^(m)
+        }
+    }
+Uks=matrix(colSums(Uk),ncol=ncol(Uk),nrow=1)
+   for(k in 1:c){
+       for(j in 1:nrow(matdt)){
+             d[j,]=Uk[j,k]*matdt[j,]
+        }
+        V[k,]=colSums(d)/Uks[,k]
+    }
+dist=matrix(ncol=1,nrow=nrow(matdt))
+alldist=matrix(ncol=c,nrow=nrow(matdt))
+    for(l in 1:c){
+        for(n in 1:nrow(matdt)){
+              dist[n,]=t(matdt[n,]-V[l,])%*%(matdt[n,]-V[l,])
+         }
+         alldist[,l]=dist
+     }
+#Menghitung fungsi objektif
+ud=matrix(ncol=c,nrow=nrow(matdt))
+    for(o in 1:nrow(matdt)){
+        for(p in 1:c){
+              ud[o,p]=alldist[o,p]*Uk[o,p]
+         }
+     }
+Pi=sum(rowSums(ud))
+P=abs(Pi-P)
+
+
+#Menghitung perubahan matriks partisi                          
+alldist2=matrix(ncol=ncol(alldist),nrow=nrow(alldist))
+     for(q in 1:nrow(alldist)){
+          for(r in 1:ncol(alldist)){
+              alldist2[q,r]=(alldist[q,r])^((-1)/(m-1))
+           }
+       }
+alldist2[alldist2==Inf] <- 0                         
+totdist=matrix(rowSums(alldist2),ncol=1,nrow=nrow(alldist2))
+       for(s in 1:nrow(U)){
+            for(t in 1:ncol(U)){
+                 U[s,t]=alldist2[s,t]/totdist[s,]
+             }
+       }
+#Jika ada U yang nol
+nilnol<-which(U==0,arr.in=TRUE)
+if(nrow(nilnol)>0){
+       nilnol=matrix(nilnol,ncol=ncol(nilnol))
+            for(nn in 1:nrow(nilnol)){
+                 U[nilnol[nn,1],]=0
+                 U[nilnol[nn,1],nilnol[nn,2]]=1
+            }
+}
+iter=iter+1
+#Mengecek kondisi berhenti
+if(P<e | iter>mit){
+      break
+   }
+}
+  
+          
